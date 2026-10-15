@@ -298,7 +298,7 @@ against the CSVs, re-derives the benchmark arithmetic, cross-checks the profilin
 the PNGs, and fails if the archived `src/gbm_montecarlo.cu` is not byte-identical to the repo copy.
 The `results/` directory committed here is exactly the content of such an archive.
 
-## Limitations (stated, not hidden)
+## Limitations
 
 - The CPU baseline is **single-threaded**; a threaded or SIMD baseline would shrink the speedups.
 - The GPU uses **`float`** (cuRAND deviates), the CPU **`double`** — fine for the stated tolerances,
