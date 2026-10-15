@@ -1,0 +1,17 @@
+== Correctness verification =====================================
+model   : GBM  S(t+dt)=S(t)*exp((mu-0.5*sigma^2)dt + sigma*sqrt(dt)*Z)
+params  : S0=100.000 mu=0.050 sigma=0.200 T=1.000 steps=252 paths=200000 seeds=3
+analytic: E[S(T)]=105.127110  Var[S(T)]=451.028808  sd=21.237439
+s.e.    : mean=0.047488  variance=1.650533  (z-limit |z| < 4.0)
+
+[cpu] seed=12345  mean=105.1428 (E=105.1271, z= +0.33)  sd= 21.221  time= 1750.3 ms
+[gpu] seed=12345  mean=105.0735 (E=105.1271, z= -1.13)  sd= 21.228  kernel=  2.546 ms
+[cpu] seed=12346  mean=105.1328 (E=105.1271, z= +0.12)  sd= 21.172  time= 1828.6 ms
+[gpu] seed=12346  mean=105.1871 (E=105.1271, z= +1.26)  sd= 21.321  kernel=  1.290 ms
+[cpu] seed=12347  mean=105.0777 (E=105.1271, z= -1.04)  sd= 21.215  time= 1785.3 ms
+[gpu] seed=12347  mean=105.0539 (E=105.1271, z= -1.54)  sd= 21.177  kernel=  1.290 ms
+[gpu] paths=1000 block=256 -> size=1000 finite_ok=1 mean_z=-0.08
+
+-- summary: 31 PASS, 0 FAIL, 3 SKIPPED (by design) --
+-- wrote results/correctness.csv --
+RESULT: ALL CHECKS PASSED

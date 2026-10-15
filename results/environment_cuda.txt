@@ -1,0 +1,18 @@
+cudaGetDeviceCount -> 2 (no error)
+device                        : Tesla T4
+compute capability            : 7.5
+multiprocessors (SMs)         : 40
+max threads per SM            : 1024
+max threads per block         : 1024
+shared memory per block       : 49152 bytes
+warp size                     : 32
+registers per SM              : 65536
+global memory                 : 14.56 GiB
+memory bus width              : 256 bit
+memory clock rate             : 5001 MHz
+L2 cache size                 : 4194304 bytes
+concurrent kernels            : 1
+cudaRuntimeGetVersion         : 12080
+cudaDriverGetVersion          : 13000
+compiled with nvcc            : 12.8
+host: see nvidia-smi / lscpu output captured by the notebook

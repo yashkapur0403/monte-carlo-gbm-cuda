@@ -1,0 +1,7 @@
+# The project's own checks compare text files byte-for-byte (the notebook's embedded CUDA
+# source against src/gbm_montecarlo.cu, and an archived results bundle against the working
+# tree), so text must check out with LF everywhere rather than platform line endings.
+* text=auto eol=lf
+
+*.png binary
+*.zip binary

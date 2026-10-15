@@ -1,0 +1,7 @@
+==PROF== Connected to process 308 (/kaggle/working/build/gbm)
+==ERROR== ERR_NVGPUCTRPERM - The user does not have permission to access NVIDIA GPU Performance Counters on the target device 0. For instructions on enabling permissions and to get more information see https://developer.nvidia.com/ERR_NVGPUCTRPERM
+== RNG / launch overhead study ==================================
+paths=1000000 block=256 reps=1 steps=252
+
+  steps=252  kernel=   4.8544 ms   19.2635 us/step    0.019 ns/path/step       206.0 Mpath/s
+==PROF== Disconnected from process 308

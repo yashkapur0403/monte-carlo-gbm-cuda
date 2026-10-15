@@ -1,0 +1,5 @@
+== Smoke test ===================================================
+cpu: 100000 paths,  865.4 ms, mean=105.0772 (E=105.1271, z=-0.74)
+gpu: 100000 paths, block=128, kernel=  0.655 ms, e2e=  0.896 ms, mean=105.1400 (z=+0.19)
+speedup (kernel): 1321.09x
+SMOKE OK

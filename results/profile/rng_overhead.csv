@@ -1,0 +1,2 @@
+paths,block,steps,kernel_ms,us_per_step,ns_per_path_step,gpu_paths_per_sec
+1000000,256,252,2.521584,10.0063,0.0100,396576115.1

@@ -1,0 +1,30 @@
+== Benchmarks ===================================================
+steps=252  gpu reps=5  cpu reps=3  block sweep=64,128,256,512  sizes=10000,100000,1000000
+method: warm-up run, then median of 5 CUDA-event kernel-only timings; GPU e2e = median of 5 runs incl. cudaMalloc/launch/D2H copy/cudaFree
+
+paths=10000      CPU  median=   86.501 ms  (reps=3, mean=105.069, sd=21.108)
+paths=10000      GPU  kernel=    0.074 ms  e2e=    0.181 ms  kernel speedup=1162.15x  e2e speedup= 477.21x
+
+    block=64   kernel=    0.073 ms  e2e=    0.199 ms     137.122 Mpath/s
+    block=128  kernel=    0.072 ms  e2e=    0.177 ms     138.458 Mpath/s
+    block=256  kernel=    0.074 ms  e2e=    0.177 ms     135.457 Mpath/s
+    block=512  kernel=    0.117 ms  e2e=    0.218 ms      85.429 Mpath/s
+
+paths=100000     CPU  median=  875.108 ms  (reps=3, mean=105.083, sd=21.162)
+paths=100000     GPU  kernel=    0.650 ms  e2e=    0.856 ms  kernel speedup=1346.35x  e2e speedup=1022.10x
+
+    block=64   kernel=    0.655 ms  e2e=    0.858 ms     152.625 Mpath/s
+    block=128  kernel=    0.655 ms  e2e=    0.891 ms     152.707 Mpath/s
+    block=256  kernel=    0.649 ms  e2e=    0.873 ms     153.971 Mpath/s
+    block=512  kernel=    0.641 ms  e2e=    0.860 ms     156.086 Mpath/s
+
+paths=1000000    CPU  median= 8684.628 ms  (reps=3, mean=105.128, sd=21.211)
+paths=1000000    GPU  kernel=    6.167 ms  e2e=    6.966 ms  kernel speedup=1408.25x  e2e speedup=1246.67x
+
+    block=64   kernel=    6.178 ms  e2e=    7.046 ms     161.858 Mpath/s
+    block=128  kernel=    4.488 ms  e2e=    4.300 ms     222.820 Mpath/s
+    block=256  kernel=    3.442 ms  e2e=    4.307 ms     290.503 Mpath/s
+    block=512  kernel=    3.429 ms  e2e=    4.190 ms     291.617 Mpath/s
+
+wrote results/benchmark_sizes.csv
+wrote results/benchmark_blocks.csv

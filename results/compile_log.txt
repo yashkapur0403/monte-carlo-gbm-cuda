@@ -1,0 +1,14 @@
+$ /usr/local/cuda/bin/nvcc -O3 -std=c++17 -arch=sm_75 -lineinfo -Xptxas -v -o build/gbm src/gbm_montecarlo.cu -lcurand
+
+src/gbm_montecarlo.cu(105): warning #177-D: function "mean_of" was declared but never referenced
+  static double mean_of(const std::vector<double>& v) {
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+ptxas info    : 218048 bytes gmem, 72 bytes cmem[3], 64 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z25gbm_terminal_price_kernelPfxifffy' for 'sm_75'
+ptxas info    : Function properties for _Z25gbm_terminal_price_kernelPfxifffy
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, used 0 barriers, 392 bytes cmem[0]
+ptxas info    : Compile time = 54.538 ms

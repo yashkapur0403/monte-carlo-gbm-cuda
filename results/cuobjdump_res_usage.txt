@@ -1,0 +1,36 @@
+
+Fatbin elf code:
+================
+arch = sm_75
+code version = [1,7]
+host = linux
+compile_size = 64bit
+identifier = src/gbm_montecarlo.cu 
+
+Resource usage:
+ Common:
+  GLOBAL:0
+
+Fatbin elf code:
+================
+arch = sm_75
+code version = [1,7]
+host = linux
+compile_size = 64bit
+identifier = src/gbm_montecarlo.cu
+
+Resource usage:
+ Common:
+  GLOBAL:218048 CONSTANT[4]:64 CONSTANT[3]:72
+ Function _Z25gbm_terminal_price_kernelPfxifffy:
+  REG:28 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0
+
+Fatbin ptx code:
+================
+arch = sm_75
+code version = [8,7]
+host = linux
+compile_size = 64bit
+compressed
+identifier = src/gbm_montecarlo.cu
+ptxasOptions = -v  --generate-line-info 

@@ -1,0 +1,17 @@
+== RNG / launch overhead study ==================================
+paths=1000000 block=256 reps=5 steps=1,4,16,64,252
+
+  steps=1    kernel=   0.0412 ms   41.2160 us/step    0.041 ns/path/step     24262.4 Mpath/s
+  steps=4    kernel=   0.0730 ms   18.2560 us/step    0.018 ns/path/step     13694.1 Mpath/s
+  steps=16   kernel=   0.1854 ms   11.5880 us/step    0.012 ns/path/step      5393.5 Mpath/s
+  steps=64   kernel=   0.6537 ms   10.2140 us/step    0.010 ns/path/step      1529.8 Mpath/s
+  steps=252  kernel=   2.5146 ms    9.9787 us/step    0.010 ns/path/step       397.7 Mpath/s
+
+OLS fit over the step sweep (kernel-only CUDA-event timings)
+  t_ms(steps) = a + b*steps
+  a = 0.029312 ms   fixed per-launch cost (kernel launch + curand_init for all 1000000 paths)
+  b = 0.00985581 ms   marginal cost of one extra step for all 1000000 paths
+  R^2 = 0.999984  (points = 5)
+  at 252 steps: a + 252*b = 2.512977 ms, of which 1.2% is fixed setup overhead
+  per-path curand_init+launch cost ~ a / n = 0.0293 ns
+wrote results/rng_overhead_fit.txt (and rng_overhead.csv)

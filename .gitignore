@@ -1,0 +1,30 @@
+# Build outputs -- never commit machine-specific binaries or objects.
+build/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.exp
+*.lib
+
+# Profiler artifacts (can be tens of MB); the text reports next to them are kept.
+results/*.nsys-rep
+results/*.ncu-rep
+results/*.sqlite
+results/*.qdrep
+results/nsys_gbm*
+results/ncu_gbm*
+
+# Result bundle written by the notebook's last cell. It only archives results/ and
+# src/gbm_montecarlo.cu, both of which are kept in the repo, so the archive itself is a
+# transfer artifact rather than evidence.
+gbm_montecarlo_results.zip
+
+# Notebook / editor noise
+.ipynb_checkpoints/
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
