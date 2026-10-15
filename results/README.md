@@ -50,6 +50,9 @@ make check
 Binary profiler artifacts (`*.nsys-rep`, `*.ncu-rep`, `*.sqlite`) are intentionally gitignored;
 their text reports are kept so the evidence is reviewable without the GUI.
 
+What each artifact is checked against — and what the archive auditor re-derives from them — is in
+[`docs/validation.md`](../docs/validation.md).
+
 On Kaggle the notebook's last cell checks that everything above is present, well formed and
 fresh (written after cell 1 started), and only then packs this directory plus the exact
 `src/gbm_montecarlo.cu` that produced it into `../gbm_montecarlo_results.zip`. If any check

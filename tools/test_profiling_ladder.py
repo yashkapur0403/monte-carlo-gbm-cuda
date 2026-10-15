@@ -292,7 +292,7 @@ try:
           "### CPU vs GPU over simulation size" in after_block
           and "### RNG setup / launch-overhead fit" in after_block)
     check("prose outside the markers survived",
-          all(h in after for h in ("## Profiling", "## Limitations (stated, not hidden)",
+          all(h in after for h in ("## Profiling", "## Limitations",
                                    "## Reproducing on Kaggle", "## What this demonstrates")))
 
     print("\n" + "=" * 74 + "\nprofiling.md written by the ladder (for review)\n" + "=" * 74)

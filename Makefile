@@ -11,9 +11,12 @@
 #                       (needs IPython, pandas, matplotlib; no GPU needed)
 #   make proftest       test the profiling cell: parsers against real tool-output formats,
 #                       then the whole ladder with fake cuobjdump/nvidia-smi shims
+#   make benchtest      test the notebook's steady-state benchmark guard against the committed
+#                       CSVs and against injected artefacts (no GPU needed)
 #   make checkzip ZIP=~/Downloads/gbm_montecarlo_results.zip
 #                       verify a results archive produced by the Kaggle run
-#   make check          notebook validation + CPU-only correctness (no GPU needed)
+#   make check          notebook validation + benchmark guard + CPU-only correctness
+#                       (no GPU needed)
 #   make clean
 
 NVCC      ?= nvcc
@@ -29,8 +32,8 @@ SRC     := src/gbm_montecarlo.cu
 GPU_BIN := $(BUILD)/gbm
 CPU_BIN := $(BUILD)/gbm_cpu
 
-.PHONY: all gpu cpu verify bench rng smoke info notebook validate nbtest proftest checkzip \
-	check clean
+.PHONY: all gpu cpu verify bench rng smoke info notebook validate nbtest proftest benchtest \
+	checkzip check clean
 
 all: gpu
 
@@ -68,12 +71,15 @@ proftest: validate
 	$(PYTHON) tools/test_profiling_cell.py
 	$(PYTHON) tools/test_profiling_ladder.py
 
+benchtest:
+	$(PYTHON) tools/test_benchmark_guard.py
+
 checkzip:
 	$(PYTHON) tools/check_results_zip.py $(ZIP)
 
 # Everything that can be checked without an NVIDIA GPU:
-# notebook integrity + the CPU-half of the model and its statistical harness.
-check: validate cpu
+# notebook integrity, the benchmark guard, and the CPU half of the model and its harness.
+check: validate benchtest cpu
 	@$(CPU_BIN) verify --paths 200000 --seeds 2 --steps 252 --out results
 
 # Only build outputs. results/ holds the measured artifacts that this repo commits as evidence,

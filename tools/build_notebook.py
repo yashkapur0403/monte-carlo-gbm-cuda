@@ -54,8 +54,11 @@ Self-contained Kaggle workflow for a GPU-computing portfolio project.
 1. Environment check: GPU model, compute capability, `nvcc`, driver and runtime versions.
 2. Compiles `src/gbm_montecarlo.cu` (CPU baseline + a custom `__global__` CUDA kernel),
    then runs `smoke` and the statistical correctness suite.
-3. Benchmarks CPU vs GPU across 10k / 100k / 1M paths and CUDA block sizes
-   64 / 128 / 256 / 512, writing raw CSV.
+3. Soaks the GPU for ~25 s of sustained kernel load (a shared T4 starts below its steady SM
+   clock, which distorts the first heavy measurement), then benchmarks CPU vs GPU across
+   10k / 100k / 1M paths and CUDA block sizes 64 / 128 / 256 / 512, writing raw CSV. Rows
+   that cannot be physical (end-to-end time below the kernel time, or two sweeps disagreeing
+   on the same geometry) trigger one re-soak and one repeat of the sweep.
 4. Plots the results, then profiles: it uses NVIDIA Nsight Systems / Compute if this image has
    them and the container permits them, and otherwise falls back to whatever works here - a
    measured CUDA-event run of the real kernel, static kernel statistics read out of the built
@@ -254,19 +257,93 @@ code(r"""
 # ========================= 3. Benchmarks (CSV) ==============================
 import pathlib, time
 
+# ---- steady-state guard ----------------------------------------------------
+# A shared Kaggle GPU starts below its steady SM clock: in an earlier session the same
+# 1000000-path/block-256 geometry measured 6.167 ms (first heavy run of the session) and
+# 3.442 ms later, and one row even reported an end-to-end time below its own kernel time,
+# which is only possible while the clock is still rising. Both are measurement artefacts,
+# not kernel behaviour, so every timed sweep below is preceded by a sustained untimed soak
+# of the real kernel, and the sweeps are re-run once if the result is still self-
+# inconsistent. The soak writes to build/, never to results/.
+SOAK_SECONDS = 25.0
+SOAK_DIR = "build/soak"
+
+
+def clock_soak(seconds=SOAK_SECONDS):
+    banner("clock soak: sustained kernel load before any timed measurement")
+    t0 = time.time()
+    while time.time() - t0 < seconds:
+        run(["./build/gbm", "rng", "--paths", "1000000", "--block", "256",
+             "--steps", "252", "--reps", "10", "--out", SOAK_DIR], quiet=True)
+    elapsed = time.time() - t0
+    print("soak: %.1f s of sustained kernel load (steady-state clocks)" % elapsed)
+    return elapsed
+
+
+# Rows that cannot be real measurements, so the sweep has to be repeated.
+def sweep_anomalies():
+    import csv
+
+    def rows(name):
+        with open("results/%s.csv" % name) as fh:
+            return list(csv.DictReader(fh))
+
+    bad = []
+    sizes, blocks = rows("benchmark_sizes"), rows("benchmark_blocks")
+    for r in sizes + blocks:
+        k, e = float(r["gpu_kernel_ms"]), float(r["gpu_e2e_ms"])
+        if e < k:
+            bad.append("paths=%s block=%s: e2e %.3f ms < kernel %.3f ms (clock still rising)"
+                       % (r["paths"], r["block"], e, k))
+    # the same geometry is measured in both sweeps: they must agree to within a few percent
+    ref = [r for r in sizes if r["block"] == "256"]
+    for r in ref:
+        same = [b for b in blocks if b["paths"] == r["paths"] and b["block"] == "256"]
+        if not same:
+            continue
+        k1, k2 = float(r["gpu_kernel_ms"]), float(same[0]["gpu_kernel_ms"])
+        if k1 > 0 and abs(k2 - k1) / k1 > 0.25:
+            bad.append("1M-scale check paths=%s: %.3f ms vs %.3f ms in the other sweep (%.0f%% apart)"
+                       % (r["paths"], k1, k2, 100.0 * abs(k2 - k1) / k1))
+    return bad
+
+
+def run_bench_sweep():
+    t0 = time.time()
+    bench = run(["./build/gbm", "bench",
+                 "--sizes", "10000,100000,1000000",
+                 "--blocks", "64,128,256,512",
+                 "--steps", "252",
+                 "--reps", "5",
+                 "--cpu-reps", "3",
+                 "--ref-block", "256",
+                 "--out", "results"])
+    pathlib.Path("results/bench_stdout.txt").write_text(bench.stdout + bench.stderr)
+    print("\nbench wall time: %.1f s (rc=%d)" % (time.time() - t0, bench.returncode))
+    assert bench.returncode == 0, "benchmark run failed"
+
+
+clock_soak()
 banner("benchmark matrix: sizes x block sizes")
-t0 = time.time()
-bench = run(["./build/gbm", "bench",
-             "--sizes", "10000,100000,1000000",
-             "--blocks", "64,128,256,512",
-             "--steps", "252",
-             "--reps", "5",
-             "--cpu-reps", "3",
-             "--ref-block", "256",
-             "--out", "results"])
-pathlib.Path("results/bench_stdout.txt").write_text(bench.stdout + bench.stderr)
-print("\nbench wall time: %.1f s (rc=%d)" % (time.time() - t0, bench.returncode))
-assert bench.returncode == 0, "benchmark run failed"
+run_bench_sweep()
+anomalies = sweep_anomalies()
+if anomalies:
+    print("\n[steady-state guard] the sweep measured something that cannot be physical:")
+    for a in anomalies:
+        print("   - %s" % a)
+    print("   re-soaking the clocks and repeating the sweep once; the repeat is kept.")
+    clock_soak()
+    run_bench_sweep()
+    remaining = sweep_anomalies()
+    if remaining:
+        print("\n[steady-state guard] still inconsistent after the repeat - reporting as measured:")
+        for a in remaining:
+            print("   - %s" % a)
+        print("   this session's clocks never settled; see the README caveat.")
+    else:
+        print("\n[steady-state guard] repeat is self-consistent; keeping it.\n")
+else:
+    print("\n[steady-state guard] all rows self-consistent (e2e >= kernel, both sweeps agree).\n")
 
 banner("RNG setup / launch-overhead study (step sweep + OLS fit)")
 rng = run(["./build/gbm", "rng",
