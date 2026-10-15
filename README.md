@@ -330,14 +330,11 @@ to the repo copy. The `results/` directory committed here is exactly the content
   size-sweep row is ramp-limited (1408× reported, ≈2523× steady state). Re-running the notebook
   regenerates the affected rows; nothing here is extrapolated to another device.
 - The CPU baseline is **single-threaded**, so the speedups are GPU-versus-one-CPU-thread figures.
-- The GPU uses **`float`** (cuRAND deviates), the CPU **`double`**; fine for the stated tolerances, but
-  a real precision difference. No variance reduction (no antithetic or control variates, no QMC).
-- **Terminal prices only** — no path storage, Greeks or pricing.
-- End-to-end time includes `cudaMalloc`/`cudaFree`, which the driver may partly amortise across
-  repetitions; that is why kernel-only time is reported alongside it.
-- **No hardware counters** in Kaggle, so only theoretical occupancy, static instruction counts and a
-  coarse sampled telemetry trace are available; single GPU, single stream.
-- GBM with constant `mu` and `sigma` is a model assumption, not a market claim.
+- **No hardware counters** in Kaggle, and a single GPU and stream: achieved occupancy, cache
+  behaviour, DRAM traffic, stalls, IPC and multi-device scaling are not measured. The occupancy quoted
+  in the profiling section is a derived hardware limit, not a measurement.
+- Scope: terminal prices only (no path storage, Greeks or pricing), no variance reduction, GPU
+  `float` versus CPU `double`, and constant `mu`/`sigma` — a model assumption, not a market claim.
 
 ## What this demonstrates
 
